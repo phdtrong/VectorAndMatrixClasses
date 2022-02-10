@@ -4,7 +4,6 @@
 #include <cstring>
 #include <initializer_list>
 #include <iostream>
-#define PI 3.14159265
 template <typename T> class vector3d;
 template <typename T>
 std::ostream &operator<<(std::ostream &os, const vector3d<T> &v);
@@ -44,14 +43,26 @@ public:
   friend vector3d operator+(const vector3d &v, T k) { return k + v; }
   friend vector3d operator-(const vector3d &v, T k) { return -k + v; }
   friend vector3d operator-(T k, const vector3d &v) {
-    return k - v;
+		vector3d<T> u = v; // get the value of this
+		for (int i = 0; i < 3; ++i) {
+			u[i] = k-u[i];
+		}             // do something on u
+		return u; // return new values
   } //========1
   friend vector3d operator*(T k, const vector3d &v) {
-    return k * v;
+    vector3d<T> u = v; // get the value of this
+		for (int i = 0; i < 3; ++i) {
+			u[i] = k*u[i];
+		}             // do something on u
+		return u; // return new values
   } //========2
   friend vector3d operator*(const vector3d &v, T k) { return k * v; }
-  friend vector3d operator/(const vector3d &v, T k) {
-    return v / k;
+	friend vector3d operator/(const vector3d &v, T k) {
+    vector3d<T> u = v; // get the value of this
+		for (int i = 0; i < 3; ++i) {
+			u[i] = u[i]/k;
+		}             // do something on u
+		return u; // return new values
   } //========3
     //-----------------------------------------------------------------------
   bool operator==(const vector3d<T> &v) const;
@@ -201,7 +212,7 @@ template <typename T> T vector3d<T>::magnitude() const {
 template <typename T> T vector3d<T>::angle(const vector3d<T> &v) const {
   const vector3d<T> &u = *this;
   check_equal_dims(v);
-  return acos(u.dot(v) / u.magnitude() / v.magnitude()) * 180.0 / PI;
+  return acos(u.dot(v) / u.magnitude() / v.magnitude());
 }
 template <typename T>
 vector3d<T> vector3d<T>::cross(const vector3d<T> &v) const {
@@ -244,7 +255,7 @@ void vector3d<T>::check_equal_dims(const vector3d<T> &v) const {
   }
 }
 template <typename T> void vector3d<T>::check_bounds(int i) const {
-  if (i < 0 || i >= dims_) {
+  if (i < 0 || i > dims_) {
     throw new std::invalid_argument("vector3d dims mismatch");
   }
 }

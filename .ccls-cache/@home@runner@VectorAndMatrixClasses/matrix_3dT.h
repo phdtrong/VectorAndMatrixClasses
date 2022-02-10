@@ -6,7 +6,7 @@
 #include <cstring>
 #include "vector_3dT.h"
 template <typename T> class matrix3d;
-template <typename T> std::ostream& operator<<(std::ostream& os, const matrix3d<T>& m);\
+template <typename T> std::ostream& operator<<(std::ostream& os, const matrix3d<T>& m);
 typedef matrix3d<double> matrix3dD;
 typedef matrix3d<float> matrix3dF;
 typedef matrix3d<int> matrix3dI;
@@ -31,7 +31,7 @@ public:
 //=======================================================================
  void name(const std::string& name);
  const std::string& name() const;
-//============================ LINEAR ALGEBRA =========================
+//============================ LINEAR ALGEBRA ===========================
  matrix3d<T>& operator+=(T k);
  matrix3d<T>& operator-=(T k);
  matrix3d<T>& operator*=(T k);
@@ -45,27 +45,32 @@ public:
  matrix3d<T> operator-(const matrix3d<T>& b);
 //=======================================================================
  friend matrix3d operator+(const matrix3d& a, T k) {
-return matrix3d(std::to_string(k) + "+" + a.name(), 3,
-{ a[0] + k, a[1] + k, a[2] + k});
+	return matrix3d(std::to_string(k) + "+" + a.name(), 3,
+	{ a[0] + k, a[1] + k, a[2] + k});
  }
  friend matrix3d operator+(T k, const matrix3d& a) { return a + k; }
  friend matrix3d operator-(const matrix3d& a, T k) { return a + -k; }
- friend matrix3d operator-(T k, const matrix3d& a) {
-// implement code here
- }
- friend matrix3d operator*(const matrix3d& a, T k) {
-// implement code here
- }
+ friend matrix3d operator-(T k, const matrix3d& a) { return -a + k; }
+ friend matrix3d operator*(const matrix3d& a, T k) { 
+	 return matrix3d(a.name()+ "*" +std::to_string(k), 3,
+	{ a[0] * k, a[1] * k, a[2] * k}); }
  friend matrix3d<T> operator*(T k, const matrix3d& a) { return a * k; }
- friend matrix3d operator/(const matrix3d& a, T k) {
-// implement code here
- }
+ friend matrix3d operator/(const matrix3d& a, T k) { return a * (1/k); }
 //=======================================================================
  friend matrix3d operator*(const matrix3d& m, const vector3d<T>& v) {
-// implement code here
+	 matrix3d<T> result = m.transpose();
+	 result.cols_[0][1]=result.cols_[0].dot(v);
+	 result.cols_[0][2]=result.cols_[1].dot(v);
+	 result.cols_[0][3]=result.cols_[2].dot(v);
+	 return result;
+	 
+	 //3x3 A * v = row * v (dot)
  }
  friend matrix3d operator*(const vector3d<T>& v, const matrix3d& m) {
 // implement code here
+	 //matrix3d result
+	 //result=....v*col
+	 //return result
  }
  matrix3d<T> operator*(const matrix3d<T>& b);
 //=======================================================================
@@ -89,7 +94,7 @@ private:
  void check_equal_dims(const matrix3d<T>& v) const;
  void check_bounds(int i) const;
  void swap(T& x, T& y);
-private: 
+private:
  std::string name_;
  int dims_;
  vector3d<T> cols_[4];
@@ -107,8 +112,8 @@ const std::initializer_list<vector3d<T>>& li)
 : matrix3d(name, dims) {
  int i = 0;
  for (vector3d<T> value : li) {
-if (i > dims_) { break; }
-cols_[i++] = value;
+	if (i > dims_) { break; }
+		cols_[i++] = value;
  }
 }
 template <typename T> matrix3d<T>::matrix3d(const std::string& name, int dims,
@@ -116,24 +121,24 @@ const std::initializer_list<T>& li)
 : matrix3d(name, dims) {
  int i = 0;
  for (T value : li) {
-cols_[i/3][i % 3] = value;
-	 ++i;
+	cols_[i/3][i % 3] = value;
+	++i;
  }
 }
 //=================================================================================================
 template <typename T> matrix3d<T>& matrix3d<T>::operator=(T array[9]) {
  for (int i = 0; i < 3; ++i) {
-for (int j = 0; j < 3; ++i) {
-cols_[i][j] = array[i + j];
-}
+	for (int j = 0; j < 3; ++i) {
+		cols_[i][j] = array[i + j];
+	}
  }
  return *this;
 }
 template <typename T> matrix3d<T>& matrix3d<T>::operator=(T k) {
  for (int i = 0; i < 3; ++i) {
-for (int j = 0; j < 3; ++j) {
-cols_[i][j] = k;
-}
+	for (int j = 0; j < 3; ++j) {
+		cols_[i][j] = k;
+	}
  }
  return *this;
 }
@@ -145,10 +150,14 @@ template <typename T> vector3d<T>& matrix3d<T>::operator[](int i) {
  check_bounds(i); return cols_[i];
 }
 template <typename T> T matrix3d<T>::operator()(int row, int col) const {
-// implement code here
+ check_bounds(row); 
+ check_bounds(col);
+ return cols_[row][col];
 }
 template <typename T> T& matrix3d<T>::operator()(int row, int col) {
-// implement code here
+ check_bounds(row); 
+ check_bounds(col);
+ return cols_[row][col];
 }
 template <typename T> T* matrix3d<T>::opengl_memory() { // constant ptr
 // implement code here
@@ -206,11 +215,16 @@ a(2,0)*b(0,2) + a(2,1)*b(1,2) + a(2,2)*b(2,2)} );
 }
 //=================================================================================================
 template <typename T> matrix3d<T> matrix3d<T>::transpose() const {
- const matrix3d<T>& m = *this;
-// implement code here
+ matrix3d<T> m = *this;
+ for(int i=0; i<3; i++)
+	 for(int j=0; j<3; j++)
+		 m.cols_[i][j]=cols_[j][i];
+ return m;
 }
 template <typename T> T matrix3d<T>::determinant() const {
-// implement code here
+ return cols_[0][0]*(cols_[1][1]*cols_[2][2]-cols_[1][2]*cols_[2][1])
+	     -cols_[0][1]*(cols_[1][0]*cols_[2][2]-cols_[1][2]*cols_[2][0])
+	 		 +cols_[0][2]*(cols_[1][0]*cols_[2][1]-cols_[1][1]*cols_[2][0]);
 }
 template <typename T> T matrix3d<T>::trace() const {
  const matrix3d<T>& m = *this;
@@ -240,25 +254,42 @@ template <typename T> matrix3d<T> matrix3d<T>::minors() const {
 (m(0,0)*m(2,1) - m(0,1)*m(2,0)),
 (m(0,0)*m(1,1) - m(0,1)*m(1,0)) });
 }
-template <typename T> matrix3d<T> matrix3d<T>::cofactor() const {
-// implement code here
+template <typename T> matrix3d<T> matrix3d<T>::cofactor() const { //+a11(c) -a12(c) a13(c) -a21(c)...
+const matrix3d<T>& m = *this;
+ return matrix3d<T>("Cofactor(" + name_ + ")", 3, {
+(m(1,1)*m(2,2) - m(1,2)*m(2,1)),
+-(m(0,1)*m(2,2) - m(0,2)*m(2,1)),
+(m(0,1)*m(1,2) - m(0,2)*m(1,1)),
+-(m(1,0)*m(2,2) - m(1,2)*m(2,0)),
+(m(0,0)*m(2,2) - m(0,2)*m(2,0)),
+-(m(0,0)*m(1,2) - m(0,2)*m(1,0)),
+(m(1,0)*m(2,1) - m(1,1)*m(2,0)),
+-(m(0,0)*m(2,1) - m(0,1)*m(2,0)),
+(m(0,0)*m(1,1) - m(0,1)*m(1,0)) });
 }
-template <typename T> matrix3d<T> matrix3d<T>::adjugate() const {
-// implement code here
+template <typename T> matrix3d<T> matrix3d<T>::adjugate() const { //transpose of cofactor matrix
+	return this->cofactor().transpose();
 }
-template <typename T> matrix3d<T> matrix3d<T>::inverse() const {
-// implement code here
+template <typename T> matrix3d<T> matrix3d<T>::inverse() const { //1/A.determinant() * A.adjugate()
+	return (1/this->determinant()) * this->adjugate();
 }
 //=================================================================================================
 template <typename T> matrix3d<T> matrix3d<T>::identity(int dims) {
-// implement code here
+// implement code here return the ID matrix at dims dimensions
+	
+	matrix3d<T> m("ID", dims);
+	for (int i = 0; i < dims; ++i)
+		for (int j = 0; j < dims; ++j)
+			if (i==j)
+				m(i,j)=T(1);
+	return m;
 }
 template <typename T> matrix3d<T> matrix3d<T>::zero(int dims) {
-// implement code here
+// implement code here return 0 matrix at dims dimensions
 }
 template <typename T> bool matrix3d<T>::operator==(const matrix3d<T>& b) const {
  check_equal_dims(b);
- const matrix3d<T>& a = *this;
+ matrix3d<T> a = *this;
  return a[0] == b[0] && a[1] == b[1] && a[2] == b[2];
 }
 template <typename T> bool matrix3d<T>::operator!=(const matrix3d<T>& b) const {
@@ -270,10 +301,10 @@ template <typename T> std::ostream& operator<<(std::ostream& os, const matrix3d<
  for (int i = 0; i < 3; ++i) { os << m.cols_[i]; }
  os << "> OR by rows...\n";
  for (int i = 0; i < 3; ++i) {
-for (int j = 0; j < 3; ++j) {
-os << m(i, j) << " ";
-}
-os << "\n";
+	for (int j = 0; j < 3; ++j) {
+		os << m[i][j] << " ";
+	}
+	os << "\n";
  }
  return os << ">";
 }
@@ -283,7 +314,7 @@ template <typename T> void matrix3d<T>::check_equal_dims(const matrix3d<T>& v) c
 }
 template <typename T> void matrix3d<T>::check_bounds(int i) const {
  if (i > dims_) {
-throw new std::invalid_argument("out of bounds");
+	throw new std::invalid_argument("out of bounds");
  }
 }
 template <typename T> void matrix3d<T>::swap(T& x, T& y) {

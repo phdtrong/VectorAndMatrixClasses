@@ -1,4 +1,6 @@
 //============================================================
+// CPSC484 - Spring 2022, CSUF, Dr. William McCarthy
+// Student: Pham, Trong
 // file: main.cpp
 //============================================================
 #include <iostream>
@@ -7,17 +9,37 @@
 #include <cassert>
 #include "matrix_3dT.h"
 #include "vector_3dT.h"
-template <typename T>
-void print(T v) {
- std::cout << v << std::endl;
+template <typename T> void print(T v);
+template <typename T> void show_vect(T v);
+template <typename T> void show_mat(T m);
+void test_vectors();
+void test_matrices();
+void test_matrices_and_vectors();
+int main(int argc, const char * argv[]) {
+ test_vectors();
+ test_matrices();
+ test_matrices_and_vectors();
+ print("... program completed ! ...\n");
+ return 0;
 }
-template <typename T>
-void show_vect(T v) {
- std::cout << v.name() << " is: " << v << std::endl;
-}
-template <typename T>
-void show_mat(T m) {
- std::cout << m.name() << " is: " << m << std::endl;
+void test_matrices_and_vectors() {
+ print("\n==================== TESTING MATRICES and VECTORS ========================");
+ //vector3dD flushing("fp", 2, {1,5});//for flushing purpose only
+ vector3dD p("p",2,{1,2});
+ show_vect(p);
+	
+ matrix3dD m("m", 2, {1, 2, 3, 4});
+ show_mat(m);
+ 
+ assert(p * m == m * p);
+	
+ vector3dD q("q", 3, {1, 2, 3});
+ matrix3dD n("n", 3, {1, 2, 3, 4, 5, 6, 7, 8, 9});
+ show_vect(q);
+ show_mat(n);
+ assert(q * n == n * q);
+ print("...test_matrices_and_vectors assertions passed");
+ print("==================== FINISHED testing matrices and vectors ========================");
 }
 void test_vectors() {
  print("\n==================== TESTING VECTORS ========================");
@@ -82,56 +104,44 @@ void test_matrices() {
 		
  matrix3dD b("b", 3, {1, 0, 5, 2, 1, 6, 3, 4, 0});
  print(b);
-	
+ 
  matrix3dD ainv = a.inverse();
  print(ainv);
-
+ 
  matrix3dD binv = b.inverse();
  print(binv);
  
+ std::cout<<"a*ainv"<<std::endl;
  print(a * ainv);
  print(b * binv);
  
- print(matrix3dD::identity(3));
-
- assert(a * ainv == matrix3dD::identity(3));
+ assert( a * ainv == matrix3dD::identity(3));
 	
- //assert(a * ainv == ainv * a);
- //assert(b * binv == matrix3dD::identity(3));
- //assert(b * binv == binv * b);
- //assert(a.transpose().transpose() == a);
- //assert(a.transpose().determinant() == a.determinant());
- //assert(a + b == b + a);
- //assert(a - b == -(b - a));
- //assert(3.0 + a == a + 3.0);
- //assert(3.0 * a == a * 3.0);
- //assert((a + 3.0) - 3.0 == a);
- //assert((3.0 * a) / 3.0 == a);
- //assert(-(-a) == a);
- //matrix3dD zerod("zerod", 3, {1, 2, 3, 4, 5, 6, 7, 8, 9});
- //assert(zerod.determinant() == 0);
- //print("...test matrices assertions passed");
- //print("==================== FINISHED testing matrices ========================");
+ assert(a * ainv == ainv * a);
+ assert(b * binv == matrix3dD::identity(3));
+ assert(b * binv == binv * b);
+
+ assert(a.transpose().transpose() == a);
+ assert(a.transpose().determinant() == a.determinant());
+ assert(a + b == b + a);
+ assert(a - b == -(b - a));
+ assert(3.0 + a == a + 3.0);
+ assert(3.0 * a == a * 3.0);
+ assert((a + 3.0) - 3.0 == a);
+ assert((3.0 * a) / 3.0 == a);
+	
+ assert(-(-a) == a);
+ matrix3dD zerod("zerod", 3, {1, 2, 3, 4, 5, 6, 7, 8, 9});
+ assert(zerod.determinant() == 0);
+ print("...test matrices assertions passed");
+ print("==================== FINISHED testing matrices ========================");
 }
-void test_matrices_and_vectors() {
- print("\n==================== TESTING MATRICES and VECTORS ========================");
- vector3dD p("p", 2, {1, 2});
- matrix3dD m("m", 2, {1, 2, 3, 4});
- show_vect(p);
- show_mat(m);
- assert(p * m == m * p);
- vector3dD q("q", 3, {1, 2, 3});
- matrix3dD n("n", 3, {1, 2, 3, 4, 5, 6, 7, 8, 9});
- show_vect(q);
- show_mat(n);
- assert(q * n == n * q);
- print("...test_matrices_and_vectors assertions passed");
- print("==================== FINISHED testing matrices and vectors ========================");
+template <typename T> void print(T v) {
+ std::cout << v << std::endl;
 }
-int main(int argc, const char * argv[]) {
- //test_vectors();
- test_matrices();
- //test_matrices_and_vectors();
- print("... program completed...\n");
- return 0;
+template <typename T> void show_vect(T v) {
+ std::cout << v.name() << " is: " << v << std::endl;
+}
+template <typename T> void show_mat(T m) {
+ std::cout << m.name() << " is: " << m << std::endl;
 }

@@ -1,3 +1,8 @@
+//============================================================
+// CPSC484 - Spring 2022, CSUF, Dr. William McCarthy
+// Student: Pham, Trong
+// FILE: vector_3dT.h
+//============================================================
 #ifndef __vector3d_T_H__
 #define __vector3d_T_H__
 #include <cmath>
@@ -22,6 +27,7 @@ public:
   //-----------------------------------------------------------------------
   void name(const std::string &name);
   const std::string &name() const;
+	int dims() const {return dims_;}
   //-----------------------------------------------------------------------
   T &operator[](int i);
   vector3d<T> &operator+=(const vector3d<T> &v);
@@ -36,29 +42,31 @@ public:
   vector3d<T> operator+(const vector3d<T> &v);
   vector3d<T> operator-(const vector3d<T> &v);
   //-----------------------------------------------------------------------
-  friend vector3d operator+(T k, const vector3d &v) {
+  friend vector3d<T> operator+(T k, const vector3d<T> &v) {
     return vector3d(std::to_string(k) + "+" + v.name_, v.dims_,
                     {k + v[0], k + v[1], k + v[2], 0});
   }
-  friend vector3d operator+(const vector3d &v, T k) { return k + v; }
-  friend vector3d operator-(const vector3d &v, T k) { return -k + v; }
-  friend vector3d operator-(T k, const vector3d &v) {
-		vector3d<T> u = v; // get the value of this
+  friend vector3d<T> operator+(const vector3d<T> &v, T k) { return k + v; }
+  friend vector3d<T> operator-(const vector3d<T> &v, T k) { return -k + v; }
+  friend vector3d<T> operator-(T k, const vector3d<T> &v) {
+		vector3d<T> u = v;
 		for (int i = 0; i < 3; ++i) {
 			u[i] = k-u[i];
 		}             // do something on u
 		return u; // return new values
   } //========1
-  friend vector3d operator*(T k, const vector3d &v) {
-    vector3d<T> u = v; // get the value of this
+  friend vector3d<T> operator*(T k, const vector3d<T> &v) {
+    vector3d<T> u = vector3d(std::to_string(k)+"*"+v.name_,v.dims_,
+		{v[0],v[1],v[2],0});
 		for (int i = 0; i < 3; ++i) {
 			u[i] = k*u[i];
 		}             // do something on u
 		return u; // return new values
   } //========2
-  friend vector3d operator*(const vector3d &v, T k) { return k * v; }
-	friend vector3d operator/(const vector3d &v, T k) {
-    vector3d<T> u = v; // get the value of this
+  friend vector3d<T> operator*(const vector3d<T> &v, T k) { return k * v; }
+	friend vector3d<T> operator/(const vector3d<T> &v, T k) {
+    vector3d<T> u = vector3d(v.name_+"/"+std::to_string(k),v.dims_,
+		{v[0],v[1],v[2],0});
 		for (int i = 0; i < 3; ++i) {
 			u[i] = u[i]/k;
 		}             // do something on u
@@ -99,7 +107,8 @@ vector3d<T>::vector3d(const std::string &name, int dims)
 template <typename T>
 vector3d<T>::vector3d(const std::string &name, int dims,
                       const std::initializer_list<T> &li)
-    : vector3d(name, dims) {
+    : name_(name), dims_(dims) {
+	
   int i = 0;
   for (T value : li) {
     if (i > dims_) {
@@ -107,16 +116,15 @@ vector3d<T>::vector3d(const std::string &name, int dims,
     }
     data_[i++] = value;
   }
-  data_[3] = T();
+	data_[dims_] = T(0);
+  data_[3] = T(0);
 }
 //-----------------------------------------------------------------------
-template <typename T>
-T vector3d<T>::operator[](int i) const { // read-only index operator
+template <typename T> T vector3d<T>::operator[](int i) const { // read-only index operator
   check_bounds(i);
   return data_[i];
 }
-template <typename T>
-T &vector3d<T>::operator[](int i) { // read-write index operator
+template <typename T> T &vector3d<T>::operator[](int i) { // read-write index operator
   check_bounds(i);                  //========4.1
   return *(data_ + i);              //========4.2
 }
@@ -177,7 +185,7 @@ template <typename T> vector3d<T> &vector3d<T>::operator/=(T k) { //=====9
 template <typename T> vector3d<T> vector3d<T>::operator-() {
   return vector3d<T>("-" + name_, dims_, {-data_[0], -data_[1], -data_[2], 0});
 }
-template <typename T> vector3d<T> vector3d<T>::operator+(const vector3d &v) {
+template <typename T> vector3d<T> vector3d<T>::operator+(const vector3d<T> &v) { //T-vector3d
   const vector3d<T> &u = *this;
   check_equal_dims(v);
   return vector3d<T>(u.name_ + "+" + v.name_, dims_,

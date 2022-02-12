@@ -1,6 +1,7 @@
 //============================================================
 // CPSC484 - Spring 2022, CSUF, Dr. William McCarthy
 // Student: Pham, Trong
+// Student: Nguyen, Michael
 // file: main.cpp
 //============================================================
 #include <iostream>

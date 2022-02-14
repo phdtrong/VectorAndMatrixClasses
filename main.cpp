@@ -10,12 +10,14 @@
 #include <cassert>
 #include "matrix_3dT.h"
 #include "vector_3dT.h"
+#include "quaternion_T.h"
 template <typename T> void print(T v);
 template <typename T> void show_vect(T v);
 template <typename T> void show_mat(T m);
 void test_vectors();
 void test_matrices();
 void test_matrices_and_vectors();
+void test_quaternions();
 int main(int argc, const char * argv[]) {
  test_vectors();
  test_matrices();
@@ -23,6 +25,13 @@ int main(int argc, const char * argv[]) {
  print("... program completed ! ...\n");
  return 0;
 }
+void test_quaternions() {
+    print("\n====================  TESTING QUATERNIONS  ========================");
+    quaternion<double>::run_tests();
+    print("...test_matrices_and_vectors assertions passed");
+    print("====================  FINISHED testing quaternions  ========================");
+}
+
 void test_matrices_and_vectors() {
  print("\n==================== TESTING MATRICES and VECTORS ========================");
  //vector3dD flushing("fp", 2, {1,5});//for flushing purpose only

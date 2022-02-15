@@ -42,6 +42,7 @@ public:
   vector3d<T> operator-();
   vector3d<T> operator+(const vector3d<T> &v);
   vector3d<T> operator-(const vector3d<T> &v);
+	T norm() { return T(magnitude());}
   //-----------------------------------------------------------------------
   friend vector3d<T> operator+(T k, const vector3d<T> &v) {
     return vector3d(std::to_string(k) + "+" + v.name_, v.dims_,

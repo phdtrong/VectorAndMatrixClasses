@@ -125,8 +125,7 @@ public:
 	}
   quaternion inverse() const
 	{
-		T scal= T(pow(scalar(),2));
-		return conjugate()/magnitude();
+		return conjugate()/pow(magnitude(),2);
 	}
   quaternion unit() const
 	{
